@@ -7,6 +7,17 @@ from keras.models import load_model
 import streamlit as st
 from sklearn.preprocessing import MinMaxScaler
 
+# print("numpy==", np.__version__)
+# print("pandas==", pd.__version__)
+# import matplotlib
+# print("matplotlib==", matplotlib.__version__)
+# print("pandas_datareader==", data.__version__)
+# import keras
+# print("keras==", keras.__version__)
+# print("streamlit==", st.__version__)
+# import sklearn
+# print("sklearn==", sklearn.__version__)
+
 # Funcitons
 def createDataset(dataset, look_back):
     dataX, dataY = [], []
