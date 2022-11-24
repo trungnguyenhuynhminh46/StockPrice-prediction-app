@@ -78,13 +78,14 @@ trainX, trainY = createDataset(train_ds, look_back)
 testX, testY = createDataset(test_ds, look_back)
 
 #Load model
+models_dir = "./h5/"
 model_names_map = {
     "FFNN": "ffnn_model.h5",
     "RNN": "rnn_model.h5",
     "LSTM": "lstm_model.h5",
     "GRU" : "gru_model.h5"
 }
-model = load_model(model_names_map[model_name])
+model = load_model(models_dir + model_names_map[model_name])
 
 # Dùng model để dự đoán
 trainPredict = model.predict(trainX)
