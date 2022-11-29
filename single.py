@@ -29,15 +29,15 @@ def single():
         "Nhập vào ngày kết thúc dự đoán",
         datetime.date(2021, 12, 31))
 
-    # Dữ liệu lấy từ DataReader
+    # Take data from pandas_reader
     raw_data = data.DataReader(stock_code, 'yahoo', start, end)
     df = raw_data.dropna();
 
-    #Mô tả dữ liệu
+    # Describe the data
     st.subheader("Thông tin của mã chứng khoán {stock_code} từ {start_date} đến {end_date}".format(stock_code = stock_code, start_date = start, end_date = end))
     st.write(df.describe())
 
-    #Trực hóa dữ liệu
+    # Data visualization
 
     st.subheader("Xu hướng chuyển dịch giá đóng cùng với các đường MA100 và MA200 của mã {stock_code} từ {start_date} đến {end_date}".format(stock_code=stock_code,start_date = start, end_date = end))
     ma100 = df.Close.rolling(100).mean()
@@ -51,7 +51,7 @@ def single():
     legend.get_frame().set_linewidth(0.4)
     st.pyplot(fig)
 
-    # Xử lý dữ liệu
+    # Prepare data
     dataset = df[['Close']].values.astype('float32');
 
     scaler = MinMaxScaler(feature_range=(0, 1))
@@ -80,7 +80,7 @@ def single():
     predictPlot[:, :] = np.nan
     predictPlot[look_back:len(predict)+look_back, :] = predict
 
-    st.subheader("Kết quả dự giá giá chứng khoáng của mã {stock_code} trên tập train và tập test so với kết quả thực tế sử dụng model {model_name} là".format(stock_code=stock_code, model_name = model_name))
+    st.subheader("Kết quả dự giá giá chứng khoáng của mã {stock_code} so với thực tế sử dụng model {model_name} là".format(stock_code=stock_code, model_name = model_name))
     plt.style.use('ggplot')
     fig = plt.figure(figsize=(12,6), dpi=110)
     plt.xlabel('Observations')
