@@ -7,8 +7,8 @@ from multiple import multiple
 
 page_names_to_funcs = {
     "—": intro,
-    "Single": single,
-    "Compare all models": multiple
+    "Dùng một mô hình để dự đoán": single,
+    "So sánh các mô hình": multiple
 }
 
 demo_name = st.sidebar.selectbox("Choose a demo", page_names_to_funcs.keys())
