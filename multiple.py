@@ -33,9 +33,10 @@ def multiple():
     scaler = MinMaxScaler(feature_range=(0, 1))
     dataset = scaler.fit_transform(dataset)
 
-    look_back = 10
+    look_back = 20
 
     X, Y = createDataset(dataset, look_back)
+    X = np.reshape(X, (X.shape[0], X.shape[1], 1))
 
     # Load models
     FFNN_model = load_model("./h5/ffnn_model.h5");

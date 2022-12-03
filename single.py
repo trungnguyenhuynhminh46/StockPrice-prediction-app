@@ -43,9 +43,9 @@ def single():
     ma100 = df.Close.rolling(100).mean()
     ma200 = df.Close.rolling(200).mean()
     fig = plt.figure(figsize=(12, 6))
-    plt.plot(ma100, 'r', label="MA100", color="r")
-    plt.plot(ma200, 'g', label="MA200", color="b")
-    plt.plot(df.Close, 'b', label="Actual Closing Prices", color="g")
+    plt.plot(ma100, 'r', label="MA100")
+    plt.plot(ma200, 'g', label="MA200")
+    plt.plot(df.Close, 'b', label="Actual Closing Prices")
     legend = plt.legend(loc="best", fontsize = 12,frameon = True)
     legend.get_frame().set_edgecolor('b')
     legend.get_frame().set_linewidth(0.4)
@@ -57,9 +57,11 @@ def single():
     scaler = MinMaxScaler(feature_range=(0, 1))
     dataset = scaler.fit_transform(dataset)
 
-    look_back = 10
+    look_back = 20
 
     X, Y = createDataset(dataset, look_back)
+    X = np.reshape(X, (X.shape[0], X.shape[1], 1))
+    print(X.shape)
 
     #Load model
     models_dir = "./h5/"
