@@ -3,7 +3,9 @@ import numpy as np
 import pandas as pd
 import datetime
 import matplotlib.pyplot as plt
-import pandas_datareader as data
+import yfinance as yf
+yf.pdr_override()
+from pandas_datareader import data as pdr
 from keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
 # Functions
@@ -25,7 +27,7 @@ def multiple():
         datetime.date(2021, 12, 31))
 
     # Take data from pandas_reader
-    raw_data = data.DataReader(stock_code, 'yahoo', start, end)
+    raw_data = pdr.get_data_yahoo(stock_code, start, end)
     df = raw_data.dropna()
 
     # Prepare data
