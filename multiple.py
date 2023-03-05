@@ -21,7 +21,7 @@ def multiple():
     stock_code = st.sidebar.text_input("Nhập vào mã chứng khoán muốn dự đoán", "AAPL")
     start = st.sidebar.date_input(
         "Nhập vào ngày bắt đầu dự đoán",
-        datetime.date(2021, 1, 1))
+        datetime.date(2019, 1, 1))
     end = st.sidebar.date_input(
         "Nhập vào ngày kết thúc dự đoán",
         datetime.date(2021, 12, 31))
@@ -45,6 +45,7 @@ def multiple():
     RNN_model = load_model("./h5/rnn_model.h5");
     LSTM_model = load_model("./h5/lstm_model.h5");
     GRU_model = load_model("./h5/gru_model.h5");
+    GAN_model = load_model("./h5/gan_model.h5");
 
     # Make predictions
     Y = scaler.inverse_transform([Y])
@@ -60,6 +61,9 @@ def multiple():
 
     GRU_predict = GRU_model.predict(X)
     GRU_predict = scaler.inverse_transform(GRU_predict)
+
+    GAN_predict = GAN_model.predict(X)
+    GAN_predict = scaler.inverse_transform(GAN_predict)
 
     # Plotting
     FFNN_predictPlot = np.empty_like(dataset)
@@ -77,6 +81,10 @@ def multiple():
     GRU_predictPlot = np.empty_like(dataset)
     GRU_predictPlot[:, :] = np.nan
     GRU_predictPlot[look_back:len(GRU_predict)+look_back, :] = GRU_predict
+    
+    GAN_predictPlot = np.empty_like(dataset)
+    GAN_predictPlot[:, :] = np.nan
+    GAN_predictPlot[look_back:len(GAN_predict)+look_back, :] = GAN_predict
 
     st.subheader("Kết quả dự giá giá chứng khoáng của mã {stock_code}".format(stock_code=stock_code))
     plt.style.use('ggplot')
@@ -89,6 +97,7 @@ def multiple():
     plt.plot(RNN_predictPlot, label = 'Predicted Closing Price By RNN', linewidth = 0.9, color = 'g')
     plt.plot(LSTM_predictPlot, label = 'Predicted Closing Price By LSTM', linewidth = 0.9, color = 'r')
     plt.plot(GRU_predictPlot, label = 'Predicted Closing Price By GRU', linewidth = 0.9, color = 'c')
+    plt.plot(GAN_predictPlot, label = 'Predicted Closing Price By GAN', linewidth = 0.9, color = 'y')
 
     ## Plot legend
     legend = plt.legend(fontsize = 12,frameon = True)
@@ -102,10 +111,11 @@ def multiple():
     RNN_mse, RNN_mae, RNN_mape, RNN_rmse = calculate_performance(Y[0],RNN_predict[:, 0])
     LSTM_mse, LSTM_mae, LSTM_mape, LSTM_rmse = calculate_performance(Y[0],LSTM_predict[:, 0])
     GRU_mse, GRU_mae, GRU_mape, GRU_rmse = calculate_performance(Y[0],GRU_predict[:, 0])
+    GAN_mse, GAN_mae, GAN_mape, GAN_rmse = calculate_performance(Y[0],GAN_predict[:, 0])
 
     st.subheader("So sánh độ chính xác của các mô hình như dự đoán giá đóng của mã {stock_code} từ {start_date} đến {end_date}".format(stock_code=stock_code,start_date = start, end_date = end))
-    d = {'RMSE': [FFNN_rmse, RNN_rmse, LSTM_rmse, GRU_rmse], 'MSE': [FFNN_mse, RNN_mse, LSTM_mse, GRU_mse], 'MAE': [FFNN_mae, RNN_mae, LSTM_mae, GRU_mae], "MAPE": [FFNN_mape, RNN_mape, LSTM_mape, GRU_mape]}
-    df = pd.DataFrame(data=d, index=["FFNN", "RNN", "LSTM", "GRU"])
+    d = {'RMSE': [FFNN_rmse, RNN_rmse, LSTM_rmse, GRU_rmse, GAN_rmse], 'MSE': [FFNN_mse, RNN_mse, LSTM_mse, GRU_mse, GAN_mse], 'MAE': [FFNN_mae, RNN_mae, LSTM_mae, GRU_mae, GAN_mae], "MAPE": [FFNN_mape, RNN_mape, LSTM_mape, GRU_mape, GAN_mape]}
+    df = pd.DataFrame(data=d, index=["FFNN", "RNN", "LSTM", "GRU", "GAN"])
 
     st.dataframe(df)
 

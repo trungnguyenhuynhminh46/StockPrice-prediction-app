@@ -21,12 +21,12 @@ def single():
     # Inputs
     model_name = st.sidebar.selectbox(
             "Chọn mô hình mà bạn muốn dùng để dự đoán",
-            ("FFNN", "RNN", "LSTM", "GRU")
+            ("FFNN", "RNN", "LSTM", "GRU", "GAN")
         )
     stock_code = st.sidebar.text_input("Nhập vào mã chứng khoán muốn dự đoán", "AAPL")
     start = st.sidebar.date_input(
         "Nhập vào ngày bắt đầu dự đoán",
-        datetime.date(2021, 1, 1))
+        datetime.date(2019, 1, 1))
     end = st.sidebar.date_input(
         "Nhập vào ngày kết thúc dự đoán",
         datetime.date(2021, 12, 31))
@@ -71,7 +71,8 @@ def single():
         "FFNN": "ffnn_model.h5",
         "RNN": "rnn_model.h5",
         "LSTM": "lstm_model.h5",
-        "GRU" : "gru_model.h5"
+        "GRU" : "gru_model.h5",
+        "GAN" : "gan_model.h5",
     }
     model = load_model(models_dir + model_names_map[model_name])
 
