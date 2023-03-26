@@ -1,5 +1,4 @@
 import streamlit as st
-import numpy as np
 import pandas as pd
 import datetime
 import matplotlib.pyplot as plt
@@ -7,9 +6,8 @@ import yfinance as yf
 yf.pdr_override()
 from pandas_datareader import data as pdr
 from keras.models import load_model
-from sklearn.preprocessing import MinMaxScaler
 # Functions
-from functions import createDataset, calculate_performance
+from functions import createDataset, add_Ma, calculate_performance, mean_squared_error, mean_absolute_error, mean_absolute_percentage_error,root_mean_squared_error, ar
 
 def multiple():
     st.write(
@@ -31,73 +29,50 @@ def multiple():
     df = raw_data.dropna()
 
     # Prepare data
-    dataset = df[['Close']].values.astype('float32')
-    scaler = MinMaxScaler(feature_range=(0, 1))
-    dataset = scaler.fit_transform(dataset)
-
-    look_back = 20
-
-    X, Y = createDataset(dataset, look_back)
-    X = np.reshape(X, (X.shape[0], X.shape[1], 1))
+    look_back=5
+    n_features = 7
+    df = df.reset_index(level=0)
+    df = add_Ma(df, look_back)
 
     # Load models
-    FFNN_model = load_model("./h5/ffnn_model.h5");
-    RNN_model = load_model("./h5/rnn_model.h5");
-    LSTM_model = load_model("./h5/lstm_model.h5");
-    GRU_model = load_model("./h5/gru_model.h5");
-    GAN_model = load_model("./h5/gan_model.h5");
+    RNN_FFNN_model = load_model("./h5/rnn_ffnn.h5", custom_objects={"mse": mean_squared_error , "mae": mean_absolute_error, "mape": mean_absolute_percentage_error, "rmse": root_mean_squared_error, "ar": ar});
+    LSTM_FFNN_model = load_model("./h5/lstm_ffnn.h5", custom_objects={"mse": mean_squared_error , "mae": mean_absolute_error, "mape": mean_absolute_percentage_error, "rmse": root_mean_squared_error, "ar": ar});
+    GRU_FFNN_model = load_model("./h5/gru_ffnn.h5", custom_objects={"mse": mean_squared_error , "mae": mean_absolute_error, "mape": mean_absolute_percentage_error, "rmse": root_mean_squared_error, "ar": ar});
+    BiLSTM_FFNN_model = load_model("./h5/bilstm_ffnn.h5", custom_objects={"mse": mean_squared_error , "mae": mean_absolute_error, "mape": mean_absolute_percentage_error, "rmse": root_mean_squared_error, "ar": ar});
+    DC_BiLSTM_FFNN_model = load_model("./h5/dc_bi_lstm_ffnn.h5", custom_objects={"mse": mean_squared_error , "mae": mean_absolute_error, "mape": mean_absolute_percentage_error, "rmse": root_mean_squared_error, "ar": ar});
 
+    x, y, mean, std = createDataset(df, look_back, n_features)
+   
+    y_true = y
+    y_true_real = y_true*std + mean
     # Make predictions
-    Y = scaler.inverse_transform([Y])
-
-    FFNN_predict = FFNN_model.predict(X)
-    FFNN_predict = scaler.inverse_transform(FFNN_predict)
-
-    RNN_predict = RNN_model.predict(X)
-    RNN_predict = scaler.inverse_transform(RNN_predict)
-
-    LSTM_predict = LSTM_model.predict(X)
-    LSTM_predict = scaler.inverse_transform(LSTM_predict)
-
-    GRU_predict = GRU_model.predict(X)
-    GRU_predict = scaler.inverse_transform(GRU_predict)
-
-    GAN_predict = GAN_model.predict(X)
-    GAN_predict = scaler.inverse_transform(GAN_predict)
-
-    # Plotting
-    FFNN_predictPlot = np.empty_like(dataset)
-    FFNN_predictPlot[:, :] = np.nan
-    FFNN_predictPlot[look_back:len(FFNN_predict)+look_back, :] = FFNN_predict
+    RNN_FFNN_predict = RNN_FFNN_model.predict(x)
+    RNN_FFNN_predict = RNN_FFNN_predict*std + mean
     
-    RNN_predictPlot = np.empty_like(dataset)
-    RNN_predictPlot[:, :] = np.nan
-    RNN_predictPlot[look_back:len(RNN_predict)+look_back, :] = RNN_predict
+    LSTM_FFNN_predict = LSTM_FFNN_model.predict(x)
+    LSTM_FFNN_predict = LSTM_FFNN_predict*std + mean
     
-    LSTM_predictPlot = np.empty_like(dataset)
-    LSTM_predictPlot[:, :] = np.nan
-    LSTM_predictPlot[look_back:len(LSTM_predict)+look_back, :] = LSTM_predict
+    GRU_FFNN_predict = GRU_FFNN_model.predict(x)
+    GRU_FFNN_predict = GRU_FFNN_predict*std + mean
     
-    GRU_predictPlot = np.empty_like(dataset)
-    GRU_predictPlot[:, :] = np.nan
-    GRU_predictPlot[look_back:len(GRU_predict)+look_back, :] = GRU_predict
+    BiLSTM_FFNN_predict = BiLSTM_FFNN_model.predict(x)
+    BiLSTM_FFNN_predict = BiLSTM_FFNN_predict*std + mean
     
-    GAN_predictPlot = np.empty_like(dataset)
-    GAN_predictPlot[:, :] = np.nan
-    GAN_predictPlot[look_back:len(GAN_predict)+look_back, :] = GAN_predict
+    DC_BiLSTM_FFNN_predict = DC_BiLSTM_FFNN_model.predict(x)
+    DC_BiLSTM_FFNN_predict = DC_BiLSTM_FFNN_predict*std + mean
 
     st.subheader("Kết quả dự giá giá chứng khoáng của mã {stock_code}".format(stock_code=stock_code))
     plt.style.use('ggplot')
     fig = plt.figure(figsize=(12,6), dpi=110)
     plt.xlabel('Observations')
     plt.ylabel(stock_code,rotation=90)
-    plt.plot(scaler.inverse_transform(dataset), label = 'Actual Closing Prices', linewidth = 1.2, color = 'k')
+    plt.plot(y_true_real[:,3], label = 'Actual Closing Prices', linewidth = 1.2, color = 'k')
 
-    plt.plot(FFNN_predictPlot, label = 'Predicted Closing Price By FFNN', linewidth = 0.9, color = 'b')
-    plt.plot(RNN_predictPlot, label = 'Predicted Closing Price By RNN', linewidth = 0.9, color = 'g')
-    plt.plot(LSTM_predictPlot, label = 'Predicted Closing Price By LSTM', linewidth = 0.9, color = 'r')
-    plt.plot(GRU_predictPlot, label = 'Predicted Closing Price By GRU', linewidth = 0.9, color = 'c')
-    plt.plot(GAN_predictPlot, label = 'Predicted Closing Price By GAN', linewidth = 0.9, color = 'y')
+    plt.plot(RNN_FFNN_predict[:,3], label = 'Predicted Closing Price Using RNN As Generator', linewidth = 0.9, color = 'b')
+    plt.plot(LSTM_FFNN_predict[:,3], label = 'Predicted Closing Price Using LSTM As Generator ', linewidth = 0.9, color = 'g')
+    plt.plot(GRU_FFNN_predict[:,3], label = 'Predicted Closing Price Using GRU As Generator', linewidth = 0.9, color = 'r')
+    plt.plot(BiLSTM_FFNN_predict[:, 3], label = 'Predicted Closing Price BiLSTM As Generator', linewidth = 0.9, color = 'c')
+    plt.plot(DC_BiLSTM_FFNN_predict[:, 3], label = 'Predicted Closing Price Using DC-BiLSTM As Generator', linewidth = 0.9, color = 'y')
 
     ## Plot legend
     legend = plt.legend(fontsize = 12,frameon = True)
@@ -107,15 +82,15 @@ def multiple():
     st.pyplot(fig)
 
     # Get accuracies
-    FFNN_mse, FFNN_mae, FFNN_mape, FFNN_rmse = calculate_performance(Y[0],FFNN_predict[:, 0])
-    RNN_mse, RNN_mae, RNN_mape, RNN_rmse = calculate_performance(Y[0],RNN_predict[:, 0])
-    LSTM_mse, LSTM_mae, LSTM_mape, LSTM_rmse = calculate_performance(Y[0],LSTM_predict[:, 0])
-    GRU_mse, GRU_mae, GRU_mape, GRU_rmse = calculate_performance(Y[0],GRU_predict[:, 0])
-    GAN_mse, GAN_mae, GAN_mape, GAN_rmse = calculate_performance(Y[0],GAN_predict[:, 0])
+    RNN_FFNN_mse, RNN_FFNN_mae, RNN_FFNN_mape, RNN_FFNN_rmse = calculate_performance(y_true_real,RNN_FFNN_predict)
+    LSTM_FFNN_mse, LSTM_FFNN_mae, LSTM_FFNN_mape, LSTM_FFNN_rmse = calculate_performance(y_true_real,LSTM_FFNN_predict)
+    GRU_FFNN_mse, GRU_FFNN_mae, GRU_FFNN_mape, GRU_FFNN_rmse = calculate_performance(y_true_real,GRU_FFNN_predict)
+    BiLSTM_FFNN_mse, BiLSTM_FFNN_mae, BiLSTM_FFNN_mape, BiLSTM_FFNN_rmse = calculate_performance(y_true_real,BiLSTM_FFNN_predict)
+    DC_BiLSTM_FFNN_mse, DC_BiLSTM_FFNN_mae, DC_BiLSTM_FFNN_mape, DC_BiLSTM_FFNN_rmse = calculate_performance(y_true_real,DC_BiLSTM_FFNN_predict)
 
     st.subheader("So sánh độ chính xác của các mô hình như dự đoán giá đóng của mã {stock_code} từ {start_date} đến {end_date}".format(stock_code=stock_code,start_date = start, end_date = end))
-    d = {'RMSE': [FFNN_rmse, RNN_rmse, LSTM_rmse, GRU_rmse, GAN_rmse], 'MSE': [FFNN_mse, RNN_mse, LSTM_mse, GRU_mse, GAN_mse], 'MAE': [FFNN_mae, RNN_mae, LSTM_mae, GRU_mae, GAN_mae], "MAPE": [FFNN_mape, RNN_mape, LSTM_mape, GRU_mape, GAN_mape]}
-    df = pd.DataFrame(data=d, index=["FFNN", "RNN", "LSTM", "GRU", "GAN"])
+    d = {'RMSE': [RNN_FFNN_rmse, LSTM_FFNN_rmse, GRU_FFNN_rmse, BiLSTM_FFNN_rmse, DC_BiLSTM_FFNN_rmse], 'MSE': [RNN_FFNN_mse, LSTM_FFNN_mse, GRU_FFNN_mse, BiLSTM_FFNN_mse, DC_BiLSTM_FFNN_mse], 'MAE': [RNN_FFNN_mae, LSTM_FFNN_mae, GRU_FFNN_mae, BiLSTM_FFNN_mae, DC_BiLSTM_FFNN_mae], "MAPE": [RNN_FFNN_mape, LSTM_FFNN_mape, GRU_FFNN_mape, BiLSTM_FFNN_mape, DC_BiLSTM_FFNN_mape]}
+    df = pd.DataFrame(data=d, index=["RNN và FFNN", "LSTM và FFNN", "GRU và FFNN", "BiLSTM và FFNN", "DC-BiLSTM và FFNN"])
 
     st.dataframe(df)
 

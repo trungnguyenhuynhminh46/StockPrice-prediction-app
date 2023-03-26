@@ -1,5 +1,4 @@
 import streamlit as st
-import numpy as np
 import pandas as pd
 import datetime
 import matplotlib.pyplot as plt
@@ -7,9 +6,8 @@ import yfinance as yf
 yf.pdr_override()
 from pandas_datareader import data as pdr
 from keras.models import load_model
-from sklearn.preprocessing import MinMaxScaler
 # Functions
-from functions import createDataset, calculate_performance
+from functions import createDataset, add_Ma, calculate_performance, mean_squared_error, mean_absolute_error, mean_absolute_percentage_error,root_mean_squared_error, ar
 
 def single():
     st.write(
@@ -21,7 +19,7 @@ def single():
     # Inputs
     model_name = st.sidebar.selectbox(
             "Chọn mô hình mà bạn muốn dùng để dự đoán",
-            ("FFNN", "RNN", "LSTM", "GRU", "GAN")
+            ("RNN và FFNN", "LSTM và FFNN", "GRU và FFNN", "BiLSTM và FFNN", "DC BI LSTM và FFNN")
         )
     stock_code = st.sidebar.text_input("Nhập vào mã chứng khoán muốn dự đoán", "AAPL")
     start = st.sidebar.date_input(
@@ -54,44 +52,36 @@ def single():
     st.pyplot(fig)
 
     # Prepare data
-    dataset = df[['Close']].values.astype('float32');
+    look_back=5
+    n_features = 7
+    df = df.reset_index(level=0)
+    df = add_Ma(df, look_back)
 
-    scaler = MinMaxScaler(feature_range=(0, 1))
-    dataset = scaler.fit_transform(dataset)
-
-    look_back = 20
-
-    X, Y = createDataset(dataset, look_back)
-    X = np.reshape(X, (X.shape[0], X.shape[1], 1))
-    print(X.shape)
 
     #Load model
     models_dir = "./h5/"
     model_names_map = {
-        "FFNN": "ffnn_model.h5",
-        "RNN": "rnn_model.h5",
-        "LSTM": "lstm_model.h5",
-        "GRU" : "gru_model.h5",
-        "GAN" : "gan_model.h5",
+        "RNN và FFNN": "rnn_ffnn.h5",
+        "LSTM và FFNN": "lstm_ffnn.h5",
+        "GRU và FFNN": "gru_ffnn.h5", 
+        "BiLSTM và FFNN": "bilstm_ffnn.h5",
+        "DC BI LSTM và FFNN": "dc_bi_lstm_ffnn.h5"
     }
-    model = load_model(models_dir + model_names_map[model_name])
+    model = load_model(models_dir + model_names_map[model_name], custom_objects={"mse": mean_squared_error , "mae": mean_absolute_error, "mape": mean_absolute_percentage_error, "rmse": root_mean_squared_error, "ar": ar})
 
-    predict = model.predict(X)
-    predict = scaler.inverse_transform(predict)
-    Y = scaler.inverse_transform([Y])
+    x, y, mean, std = createDataset(df, look_back, n_features)
+    y_pred = model.predict(x)
+    y_pred_real = y_pred*std + mean
+    y_true = y
+    y_true_real = y_true*std + mean
 
-    # Plotting
-    predictPlot = np.empty_like(dataset)
-    predictPlot[:, :] = np.nan
-    predictPlot[look_back:len(predict)+look_back, :] = predict
-
-    st.subheader("Kết quả dự giá giá chứng khoáng của mã {stock_code} so với thực tế sử dụng model {model_name} là".format(stock_code=stock_code, model_name = model_name))
+    st.subheader("Kết quả dự giá giá chứng khoáng của mã {stock_code} so với thực tế sử dụng model GAN kết hợp giữa {model_name} là".format(stock_code=stock_code, model_name = model_name))
     plt.style.use('ggplot')
     fig = plt.figure(figsize=(12,6), dpi=110)
     plt.xlabel('Observations')
     plt.ylabel(stock_code,rotation=90)
-    plt.plot(scaler.inverse_transform(dataset), label = 'Actual Closing Prices', linewidth = 1.2, color = 'c')
-    plt.plot(predictPlot, label = 'Predicted Closing Price', linewidth = 0.9, color = 'k')
+    plt.plot(y_true_real[:,3], label = 'Actual Closing Prices', linewidth = 1.2, color = 'c')
+    plt.plot(y_pred_real[:,3], label = 'Predicted Closing Price', linewidth = 0.9, color = 'k')
     legend = plt.legend(fontsize = 12,frameon = True)
     legend.get_frame().set_edgecolor('b')
     legend.get_frame().set_linewidth(0.4)
@@ -99,7 +89,7 @@ def single():
     st.pyplot(fig)
 
     # Get accuracies
-    mse, mae, mape, rmse = calculate_performance(Y[0],predict[:, 0])
+    mse, mae, mape, rmse = calculate_performance(y_true_real, y_pred_real)
 
     st.subheader("Độ chính xác mô hình dự đoán của mã {stock_code} từ {start_date} đến {end_date}".format(stock_code=stock_code,start_date = start, end_date = end))
     d = {'RMSE': [rmse], 'MSE': [mse], 'MAE': [mae], "MAPE": [mape]}
