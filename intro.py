@@ -2,7 +2,7 @@ import streamlit as st
 def intro():
 
     st.write("# Chào mừng đến với chương trình dự đoán giá chứng khoán! 👋")
-    st.sidebar.success("Chọn một lựa chọn")
+    st.sidebar.success("Chọn một lựa chọn.")
 
     st.markdown(
         """
