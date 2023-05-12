@@ -252,5 +252,5 @@ def plot_frame(sequence, target, mean, std, model):
     return y_pred_real, y_true_real
 ```
 
-Kết quả thực nghiệm
+Kết quả thực nghiệm <br>
 ![download](https://github.com/trungnguyenhuynhminh46/StockPrice-prediction-app/assets/58035150/0f8f9ce5-c5f6-4d6d-a074-d0f1bb3a694f)
