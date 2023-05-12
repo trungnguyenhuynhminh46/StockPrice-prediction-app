@@ -40,7 +40,13 @@ class Standarized_TimeseriesGenerator(tf.keras.preprocessing.sequence.Timeseries
 ## 4. Xây dựng Generator và Discriminator
 
 - Trong phạm vi khóa luận tốt nghiệp, chúng tôi chọn ra 5 mô hình dùng làm Generator đó là RNN, LSTM, GRU, BiLSTM, DCBiLSTM.
+![1](https://github.com/trungnguyenhuynhminh46/StockPrice-prediction-app/assets/58035150/d69c55d0-aa69-4be8-a06b-420a051f584c)
+![2](https://github.com/trungnguyenhuynhminh46/StockPrice-prediction-app/assets/58035150/a0a66a04-5e91-48c8-aff3-37a4e0aa73f9)
+![3](https://github.com/trungnguyenhuynhminh46/StockPrice-prediction-app/assets/58035150/081b9252-42e2-449b-bc39-77b361ab04cb)
+![4](https://github.com/trungnguyenhuynhminh46/StockPrice-prediction-app/assets/58035150/02eaf7ee-3f37-47ea-a180-61a759cc6bba)
+![5](https://github.com/trungnguyenhuynhminh46/StockPrice-prediction-app/assets/58035150/1fc280c1-3240-4929-acc0-25b7978c49c9)
 - Vì đặc tính đầu vào khá đơn giản là dữ liệu tuần tự theo thời gian nên chúng tôi quyết định sử dụng mô hình FFNN làm discriminator. Cấu trúc mô hình như sau:
+![6](https://github.com/trungnguyenhuynhminh46/StockPrice-prediction-app/assets/58035150/5b33b0a6-8bdf-4e1f-a149-e1c46070e204)
 
 ## 5. Quá trình training
 
@@ -247,3 +253,4 @@ def plot_frame(sequence, target, mean, std, model):
 ```
 
 Kết quả thực nghiệm
+![download](https://github.com/trungnguyenhuynhminh46/StockPrice-prediction-app/assets/58035150/0f8f9ce5-c5f6-4d6d-a074-d0f1bb3a694f)
