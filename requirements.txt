@@ -5,5 +5,5 @@ matplotlib==3.6.2
 tensorflow==2.11.0
 keras==2.11.0
 streamlit==1.15.2
-sklearn==0.0.post1
+scikit-learn==0.0.post1
 yfinance==0.2.3
