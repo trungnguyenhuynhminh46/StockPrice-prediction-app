@@ -89,10 +89,10 @@ def single():
     st.pyplot(fig)
 
     # Get accuracies
-    mse, mae, mape, rmse = calculate_performance(y_true_real, y_pred_real)
+    mse, mae, mape, rmse, accuracy = calculate_performance(y_true_real, y_pred_real)
 
     st.subheader("Độ chính xác mô hình dự đoán của mã {stock_code} từ {start_date} đến {end_date}".format(stock_code=stock_code,start_date = start, end_date = end))
-    d = {'RMSE': [rmse], 'MSE': [mse], 'MAE': [mae], "MAPE": [mape]}
+    d = {'RMSE': [rmse], 'MSE': [mse], 'MAE': [mae], "MAPE": [mape], "Accuracy": [accuracy]}
     df = pd.DataFrame(data=d, index=[model_name])
 
     st.dataframe(df)

@@ -82,14 +82,14 @@ def multiple():
     st.pyplot(fig)
 
     # Get accuracies
-    RNN_FFNN_mse, RNN_FFNN_mae, RNN_FFNN_mape, RNN_FFNN_rmse = calculate_performance(y_true_real,RNN_FFNN_predict)
-    LSTM_FFNN_mse, LSTM_FFNN_mae, LSTM_FFNN_mape, LSTM_FFNN_rmse = calculate_performance(y_true_real,LSTM_FFNN_predict)
-    GRU_FFNN_mse, GRU_FFNN_mae, GRU_FFNN_mape, GRU_FFNN_rmse = calculate_performance(y_true_real,GRU_FFNN_predict)
-    BiLSTM_FFNN_mse, BiLSTM_FFNN_mae, BiLSTM_FFNN_mape, BiLSTM_FFNN_rmse = calculate_performance(y_true_real,BiLSTM_FFNN_predict)
-    DC_BiLSTM_FFNN_mse, DC_BiLSTM_FFNN_mae, DC_BiLSTM_FFNN_mape, DC_BiLSTM_FFNN_rmse = calculate_performance(y_true_real,DC_BiLSTM_FFNN_predict)
+    RNN_FFNN_mse, RNN_FFNN_mae, RNN_FFNN_mape, RNN_FFNN_rmse, RNN_FFNN_accuracy = calculate_performance(y_true_real,RNN_FFNN_predict)
+    LSTM_FFNN_mse, LSTM_FFNN_mae, LSTM_FFNN_mape, LSTM_FFNN_rmse, LSTM_FFNN_accuracy = calculate_performance(y_true_real,LSTM_FFNN_predict)
+    GRU_FFNN_mse, GRU_FFNN_mae, GRU_FFNN_mape, GRU_FFNN_rmse, GRU_FFNN_accuracy = calculate_performance(y_true_real,GRU_FFNN_predict)
+    BiLSTM_FFNN_mse, BiLSTM_FFNN_mae, BiLSTM_FFNN_mape, BiLSTM_FFNN_rmse, BiLSTM_FFNN_accuracy = calculate_performance(y_true_real,BiLSTM_FFNN_predict)
+    DC_BiLSTM_FFNN_mse, DC_BiLSTM_FFNN_mae, DC_BiLSTM_FFNN_mape, DC_BiLSTM_FFNN_rmse, DC_BiLSTM_FFNN_accuracy = calculate_performance(y_true_real,DC_BiLSTM_FFNN_predict)
 
     st.subheader("So sánh độ chính xác của các mô hình như dự đoán giá đóng của mã {stock_code} từ {start_date} đến {end_date}".format(stock_code=stock_code,start_date = start, end_date = end))
-    d = {'RMSE': [RNN_FFNN_rmse, LSTM_FFNN_rmse, GRU_FFNN_rmse, BiLSTM_FFNN_rmse, DC_BiLSTM_FFNN_rmse], 'MSE': [RNN_FFNN_mse, LSTM_FFNN_mse, GRU_FFNN_mse, BiLSTM_FFNN_mse, DC_BiLSTM_FFNN_mse], 'MAE': [RNN_FFNN_mae, LSTM_FFNN_mae, GRU_FFNN_mae, BiLSTM_FFNN_mae, DC_BiLSTM_FFNN_mae], "MAPE": [RNN_FFNN_mape, LSTM_FFNN_mape, GRU_FFNN_mape, BiLSTM_FFNN_mape, DC_BiLSTM_FFNN_mape]}
+    d = {'RMSE': [RNN_FFNN_rmse, LSTM_FFNN_rmse, GRU_FFNN_rmse, BiLSTM_FFNN_rmse, DC_BiLSTM_FFNN_rmse], 'MSE': [RNN_FFNN_mse, LSTM_FFNN_mse, GRU_FFNN_mse, BiLSTM_FFNN_mse, DC_BiLSTM_FFNN_mse], 'MAE': [RNN_FFNN_mae, LSTM_FFNN_mae, GRU_FFNN_mae, BiLSTM_FFNN_mae, DC_BiLSTM_FFNN_mae], "MAPE": [RNN_FFNN_mape, LSTM_FFNN_mape, GRU_FFNN_mape, BiLSTM_FFNN_mape, DC_BiLSTM_FFNN_mape], "Accuracy": [RNN_FFNN_accuracy, LSTM_FFNN_accuracy, GRU_FFNN_accuracy, BiLSTM_FFNN_accuracy, DC_BiLSTM_FFNN_accuracy]}
     df = pd.DataFrame(data=d, index=["RNN và FFNN", "LSTM và FFNN", "GRU và FFNN", "BiLSTM và FFNN", "DC-BiLSTM và FFNN"])
 
     st.dataframe(df)
